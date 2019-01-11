@@ -13,11 +13,18 @@ DWORD teamNumber;
 
 BOOL numlock = FALSE;
 
-void TriggerBunnyHop() {
+BOOL caplock = FALSE;
+
+DWORD WINAPI _TriggerBunnyHop(LPVOID params) {
 	BOOL bSuccess;
 	while (TRUE) {
-		if (GetAsyncKeyState(VK_NUMLOCK) & 0x8001)
+		if (GetAsyncKeyState(VK_NUMLOCK) & 0x8001) {
 			numlock = !numlock;
+			if (numlock)
+				cout << "BUNNY HOP ENABLED\n";
+			else
+				cout << "BUNNY HOP DISABLED\n";
+		}
 		if (numlock) {
 			bSuccess = Write(clientdll + PLAYER::dwForceJump, 1, pid);
 			Sleep(100);
@@ -30,25 +37,44 @@ void TriggerBunnyHop() {
 	}
 }
 
+HANDLE TriggerBunnyHop() {
+	return CreateThread(NULL, 0, _TriggerBunnyHop, NULL, 0, NULL);
+}
+
 BOOL IsCrossHairFriendly(DWORD crosshair) {
 	DWORD base = Read(clientdll + ENTITY_LIST + (crosshair * 0x10), pid);
 	return teamNumber == Read(base + ENTITY::m_iTeamNum, pid);
 }
 
-void TriggerAutoShoot(DWORD dwFlags) {
+DWORD WINAPI _TriggerAutoShoot(LPVOID dwFlags) {
 	BOOL bSuccess;
 	BOOL scopeIn;
 	DWORD crosshair;
+	DWORD flags = *(DWORD*)dwFlags;
 	while (TRUE) {
-		scopeIn = Read<BOOL>(playerAddress + PLAYER::m_bIsScoped, pid);
-		crosshair = Read(playerAddress + PLAYER::m_iCrosshairId, pid);
-		if (crosshair > 0 && scopeIn && !IsCrossHairFriendly(crosshair)) {
-			bSuccess = Write(playerAddress + PLAYER::dwForceAttack, 5, pid);
-			Sleep(30);
-			bSuccess = Write(playerAddress + PLAYER::dwForceAttack, 4, pid);
-			Sleep(30);
+		if (GetAsyncKeyState(VK_CAPITAL) & 0x8001) {
+			caplock = !caplock;
+			if (caplock)
+				cout << "TRIGGER AUTO SHOOT ENABLED\n";
+			else
+				cout << "TRIGGER AUTO SHOOT DISABLED\n";
+		}
+		if (caplock) {
+			scopeIn = Read<BOOL>(playerAddress + PLAYER::m_bIsScoped, pid);
+			crosshair = Read(playerAddress + PLAYER::m_iCrosshairId, pid);
+			if (crosshair > 0 && scopeIn && !IsCrossHairFriendly(crosshair)) {
+				bSuccess = Write(playerAddress + PLAYER::dwForceAttack, 5, pid);
+				Sleep(30);
+				bSuccess = Write(playerAddress + PLAYER::dwForceAttack, 4, pid);
+				Sleep(30);
+			}
 		}
 	}
+	return 0;
+}
+
+HANDLE TriggerAutoShoot(DWORD dwFlags) {
+	return CreateThread(NULL, 0, _TriggerAutoShoot, (LPVOID) dwFlags, 0, NULL);
 }
 
 DWORD GetTeamNumber() {
@@ -66,10 +92,6 @@ int main() {
 	teamNumber = GetTeamNumber();
 	playerAddress = GetPlayerAddress();
 
-	while (TRUE)
-	{		
-		TriggerBunnyHop();
-	}
 	cin.get();
 	return 0;
 }
