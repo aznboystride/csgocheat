@@ -38,7 +38,11 @@ DWORD WINAPI _TriggerBunnyHop(LPVOID params) {
 }
 
 HANDLE TriggerBunnyHop() {
-	return CreateThread(NULL, 0, _TriggerBunnyHop, NULL, 0, NULL);
+	HANDLE h = CreateThread(NULL, 0, _TriggerBunnyHop, NULL, 0, NULL);
+	if (h == NULL) {
+		cerr << "Fail To Trigger Auto Bunny Hop\n";
+	}
+	return h;
 }
 
 BOOL IsCrossHairFriendly(DWORD crosshair) {
@@ -74,7 +78,11 @@ DWORD WINAPI _TriggerAutoShoot(LPVOID dwFlags) {
 }
 
 HANDLE TriggerAutoShoot(DWORD dwFlags) {
-	return CreateThread(NULL, 0, _TriggerAutoShoot, (LPVOID) dwFlags, 0, NULL);
+	HANDLE h = CreateThread(NULL, 0, _TriggerAutoShoot, (LPVOID)dwFlags, 0, NULL);
+	if (h == NULL) {
+		cerr << "Fail To Trigger Auto Shoot\n";
+	}
+	return h;
 }
 
 DWORD GetTeamNumber() {
@@ -91,7 +99,7 @@ int main() {
 	clientdll = GetProcessModule("client_panorama.dll", pid);
 	teamNumber = GetTeamNumber();
 	playerAddress = GetPlayerAddress();
-
+	HANDLE hopHandle = TriggerBunnyHop();
 	cin.get();
 	return 0;
 }
