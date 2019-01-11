@@ -11,13 +11,22 @@ DWORD playerAddress;
 
 DWORD teamNumber;
 
+BOOL numlock = FALSE;
+
 void TriggerBunnyHop() {
 	BOOL bSuccess;
 	while (TRUE) {
-		bSuccess = Write(clientdll + PLAYER::dwForceJump, 1, pid);
-		Sleep(30);
-		bSuccess = Write(clientdll + PLAYER::dwForceJump, 0, pid);
-		Sleep(30);
+		if (GetAsyncKeyState(VK_NUMLOCK) & 0x8001)
+			numlock = !numlock;
+		if (numlock) {
+			bSuccess = Write(clientdll + PLAYER::dwForceJump, 1, pid);
+			Sleep(300);
+			bSuccess = Write(clientdll + PLAYER::dwForceJump, 0, pid);
+			if (bSuccess == FALSE) {
+				cerr << "FAILURE\n" << GetLastError() << endl;;
+			}
+			Sleep(300);
+		}
 	}
 }
 
@@ -57,6 +66,10 @@ int main() {
 	teamNumber = GetTeamNumber();
 	playerAddress = GetPlayerAddress();
 
+	while (TRUE)
+	{		
+		TriggerBunnyHop();
+	}
 	cin.get();
 	return 0;
 }

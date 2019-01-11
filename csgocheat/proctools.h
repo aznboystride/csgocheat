@@ -43,8 +43,8 @@ DWORD GetProcessModule(string modName, DWORD pid) {
 template<class T=DWORD>
 BOOL Write(DWORD address, T value, DWORD pid) {
 	T toWrite = value;
-	HANDLE handle = OpenProcess(PROCESS_VM_WRITE, FALSE, pid);
-	BOOL bSuccess = WriteProcessMemory(handle, (LPVOID)address, (LPVOID)toWrite, sizeof(toWrite), NULL);
+	HANDLE handle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
+	BOOL bSuccess = WriteProcessMemory(handle, (LPVOID)address, (LPVOID)&toWrite, sizeof(toWrite), NULL);
 	CloseHandle(handle);
 	return bSuccess;
 }
@@ -52,7 +52,7 @@ BOOL Write(DWORD address, T value, DWORD pid) {
 template<class T=DWORD>
 T Read(DWORD address, DWORD pid) {
 	T toRead;
-	HANDLE handle = OpenProcess(PROCESS_VM_READ, FALSE, pid);
+	HANDLE handle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
 	BOOL bSuccess = ReadProcessMemory(handle, (LPVOID)address, &toRead, sizeof(toRead), NULL);
 	CloseHandle(handle);
 	if(bSuccess)
