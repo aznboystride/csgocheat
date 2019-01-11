@@ -50,12 +50,15 @@ BOOL Write(DWORD address, T value, DWORD pid) {
 }
 
 template<class T=DWORD>
-T Read(DWORD address, T value, DWORD pid) {
+T Read(DWORD address, DWORD pid) {
 	T toRead;
 	HANDLE handle = OpenProcess(PROCESS_VM_READ, FALSE, pid);
 	BOOL bSuccess = ReadProcessMemory(handle, (LPVOID)address, &toRead, sizeof(toRead), NULL);
 	CloseHandle(handle);
-	return bSuccess;
+	if(bSuccess)
+		return toRead;
+	toRead = -1;
+	return toRead;
 }
 
 #endif
