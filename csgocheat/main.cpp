@@ -7,54 +7,55 @@ DWORD pid;
 
 DWORD clientdll;
 
-DWORD entity_base;
+DWORD playerAddress;
+
+DWORD teamNumber;
 
 void TriggerBunnyHop() {
 	BOOL bSuccess;
 	while (TRUE) {
-		bSuccess = Write(PLAYER::dwForceJump, 1, pid);
-		if (bSuccess == FALSE) {
-			cerr << "Failed To Trigger Bunny Hop\n";
-			ExitThread(-1);
-		}
+		bSuccess = Write(clientdll + PLAYER::dwForceJump, 1, pid);
 		Sleep(30);
-		bSuccess = Write(PLAYER::dwForceJump, 0, pid);
-		if (bSuccess == FALSE) {
-			cerr << "Failed To Trigger Bunny Hop\n";
-			ExitThread(-1);
-		}
+		bSuccess = Write(clientdll + PLAYER::dwForceJump, 0, pid);
 		Sleep(30);
 	}
+}
+
+BOOL IsCrossHairFriendly(DWORD crosshair) {
+	DWORD base = Read(clientdll + ENTITY_LIST + (crosshair * 0x10), pid);
+	return teamNumber == Read(base + ENTITY::m_iTeamNum, pid);
 }
 
 void TriggerAutoShoot(DWORD dwFlags) {
 	BOOL bSuccess;
 	BOOL scopeIn;
+	DWORD crosshair;
 	while (TRUE) {
-		scopeIn = Read<BOOL>(PLAYER::m_bIsScoped, pid);
-		//if (scopeIn == -1) {
-		//	cerr << "Failed To Detect Scope\n";
-		//	ExitThread(-1);
-		//}
-		bSuccess = Write(PLAYER::dwForceAttack, 5, pid);
-		//if (bSuccess == FALSE) {
-		//	cerr << "Failed To Trigger Force Shoot\n";
-		//	ExitThread(-1);
-		//}
-		Sleep(30);
-		bSuccess = Write(PLAYER::dwForceAttack, 4, pid);
-		//if (bSuccess == FALSE) {
-		//	cerr << "Failed To Trigger Force Shoot\n";
-		//	ExitThread(-1);
-		//}
-		Sleep(30);
+		scopeIn = Read<BOOL>(playerAddress + PLAYER::m_bIsScoped, pid);
+		crosshair = Read(playerAddress + PLAYER::m_iCrosshairId, pid);
+		if (crosshair > 0 && scopeIn && !IsCrossHairFriendly(crosshair)) {
+			bSuccess = Write(playerAddress + PLAYER::dwForceAttack, 5, pid);
+			Sleep(30);
+			bSuccess = Write(playerAddress + PLAYER::dwForceAttack, 4, pid);
+			Sleep(30);
+		}
 	}
+}
+
+DWORD GetTeamNumber() {
+	DWORD base = Read(clientdll + ENTITY_LIST, pid);
+	return Read(base + ENTITY::m_iTeamNum, pid);
+}
+
+DWORD GetPlayerAddress() {
+	return Read(clientdll + LOCAL_PLAYER, pid);
 }
 
 int main() {
 	pid = GetProcessID("csgo.exe");
 	clientdll = GetProcessModule("client_panorama.dll", pid);
-
+	teamNumber = GetTeamNumber();
+	playerAddress = GetPlayerAddress();
 
 	cin.get();
 	return 0;
