@@ -20,12 +20,12 @@ void TriggerBunnyHop() {
 			numlock = !numlock;
 		if (numlock) {
 			bSuccess = Write(clientdll + PLAYER::dwForceJump, 1, pid);
-			Sleep(300);
+			Sleep(100);
 			bSuccess = Write(clientdll + PLAYER::dwForceJump, 0, pid);
 			if (bSuccess == FALSE) {
 				cerr << "FAILURE\n" << GetLastError() << endl;;
 			}
-			Sleep(300);
+			Sleep(100);
 		}
 	}
 }
