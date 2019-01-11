@@ -18,6 +18,7 @@ BOOL caplock = FALSE;
 DWORD WINAPI _TriggerBunnyHop(LPVOID params) {
 	BOOL bSuccess;
 	while (TRUE) {
+		Sleep(40);
 		if (GetAsyncKeyState(VK_NUMLOCK) & 0x8001) {
 			numlock = !numlock;
 			if (numlock)
@@ -58,6 +59,7 @@ DWORD WINAPI _TriggerAutoShoot(LPVOID dwFlags) {
 	if(dwFlags)
 		flags = *(DWORD*)dwFlags;
 	while (TRUE) {
+		Sleep(40);
 		if (GetAsyncKeyState(VK_CAPITAL) & 0x8001) {
 			caplock = !caplock;
 			if (caplock)
