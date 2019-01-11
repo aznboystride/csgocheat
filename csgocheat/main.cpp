@@ -54,7 +54,9 @@ DWORD WINAPI _TriggerAutoShoot(LPVOID dwFlags) {
 	BOOL bSuccess;
 	BOOL scopeIn;
 	DWORD crosshair;
-	DWORD flags = *(DWORD*)dwFlags;
+	DWORD flags;
+	if(dwFlags)
+		flags = *(DWORD*)dwFlags;
 	while (TRUE) {
 		if (GetAsyncKeyState(VK_CAPITAL) & 0x8001) {
 			caplock = !caplock;
@@ -100,39 +102,7 @@ int main() {
 	teamNumber = GetTeamNumber();
 	playerAddress = GetPlayerAddress();
 	HANDLE hopHandle = TriggerBunnyHop();
-
-	DWORD crossHairId;
-	DWORD entity;
-	DWORD health;
-	int i = 0;
-	while (TRUE)
-	{
-		crossHairId = Read(playerAddress + PLAYER::m_iCrosshairId, pid);
-		if (crossHairId == -1)
-		{
-			cerr << "Failure\n";
-		}
-		else {
-			cout << "\nMy Team Number: " << teamNumber << endl;
-			cout << "Cross Hair ID: " << crossHairId << endl;
-			entity = Read(clientdll + ENTITY_LIST + (crossHairId - 1) * 0x10, pid);
-			if (entity == 0) {
-				cout << "No Entity on # " << crossHairId << endl;
-			}
-			else
-			{
-				cout << "Cross Hair Entity Health: ";
-				health = Read(entity + ENTITY::m_iHealth, pid);
-				if (health != -1) {
-					cerr << "HEALTH is: " << health << endl;
-				}
-			}
-			Sleep(300);
-			i++;
-			if (i == 12)
-				i = 0;
-		}
-	}
+	HANDLE shHandle = TriggerAutoShoot(NULL);
 	cin.get();
 	return 0;
 }
