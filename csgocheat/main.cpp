@@ -13,7 +13,35 @@ DWORD teamNumber;
 
 BOOL numlock = FALSE;
 
-BOOL caplock = FALSE;
+BOOL caplock = TRUE;
+
+DWORD GetPlayerAddress() {
+	return Read(clientdll + LOCAL_PLAYER, pid);
+}
+
+DWORD GetTeamNumber() {
+	DWORD base = Read(clientdll + ENTITY_LIST, pid);
+	if (base == -1) {
+		cerr << "Fail\n";
+	}
+	DWORD num = Read(base + ENTITY::m_iTeamNum, pid);
+	if (base == -1) {
+		cerr << "Fail\n";
+	}
+	return num;
+}
+
+DWORD GetHealth() {
+	DWORD base = Read(clientdll + ENTITY_LIST, pid);
+	if (base == -1) {
+		cerr << "Fail\n";
+	}
+	DWORD num = Read(base + ENTITY::m_iHealth, pid);
+	if (base == -1) {
+		cerr << "Fail\n";
+	}
+	return num;
+}
 
 DWORD WINAPI _TriggerBunnyHop(LPVOID params) {
 	BOOL bSuccess;
@@ -49,7 +77,12 @@ HANDLE TriggerBunnyHop() {
 
 BOOL IsCrossHairFriendly(DWORD crosshair) {
 	DWORD base = Read(clientdll + ENTITY_LIST + ((crosshair - 1) * 0x10), pid);
-	return teamNumber == Read(base + ENTITY::m_iTeamNum, pid);
+	return GetTeamNumber() == Read(base + ENTITY::m_iTeamNum, pid);
+}
+
+DWORD _GetTeamNumber(DWORD crosshair) {
+	DWORD base = Read(clientdll + ENTITY_LIST + ((crosshair - 1) * 0x10), pid);
+	return Read(base + ENTITY::m_iTeamNum, pid);
 }
 
 DWORD WINAPI _TriggerAutoShoot(LPVOID dwFlags) {
@@ -57,6 +90,7 @@ DWORD WINAPI _TriggerAutoShoot(LPVOID dwFlags) {
 	BOOL scopeIn;
 	DWORD crosshair;
 	DWORD flags;
+	SHORT state;
 	if(dwFlags)
 		flags = *(DWORD*)dwFlags;
 	while (TRUE) {
@@ -70,12 +104,18 @@ DWORD WINAPI _TriggerAutoShoot(LPVOID dwFlags) {
 				cout << "TRIGGER AUTO SHOOT DISABLED\n";
 		}
 		if (caplock) {
-			scopeIn = Read<BOOL>(playerAddress + PLAYER::m_bIsScoped, pid);
-			crosshair = Read(playerAddress + PLAYER::m_iCrosshairId, pid);
-			if (crosshair > 0 && scopeIn && !IsCrossHairFriendly(crosshair)) {
+			scopeIn = Read<BOOL>(GetPlayerAddress() + PLAYER::m_bIsScoped, pid);
+			crosshair = Read(GetPlayerAddress() + PLAYER::m_iCrosshairId, pid);
+			if (crosshair > 0 /*&& scopeIn*/ && !IsCrossHairFriendly(crosshair)) {
 				bSuccess = Write(clientdll + PLAYER::dwForceAttack, 5, pid);
+				cout << "die " << _GetTeamNumber(crosshair) << endl;
+				cout << "My Team Number: " << GetTeamNumber() << endl;
+				if (bSuccess == FALSE)
+					cerr << "write fail\n";
 				Sleep(30);
 				bSuccess = Write(clientdll + PLAYER::dwForceAttack, 4, pid);
+				if (bSuccess == FALSE)
+					cerr << "write fail\n";
 				Sleep(30);
 			}
 		}
@@ -89,15 +129,6 @@ HANDLE TriggerAutoShoot(DWORD dwFlags) {
 		cerr << "Fail To Trigger Auto Shoot\n";
 	}
 	return h;
-}
-
-DWORD GetTeamNumber() {
-	DWORD base = Read(clientdll + ENTITY_LIST, pid);
-	return Read(base + ENTITY::m_iTeamNum, pid);
-}
-
-DWORD GetPlayerAddress() {
-	return Read(clientdll + LOCAL_PLAYER, pid);
 }
 
 int main() {
