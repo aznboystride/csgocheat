@@ -7,6 +7,8 @@ DWORD pid;
 
 DWORD clientdll;
 
+DWORD entity_base;
+
 void TriggerBunnyHop() {
 	BOOL bSuccess;
 	while (TRUE) {
@@ -30,21 +32,21 @@ void TriggerAutoShoot(DWORD dwFlags) {
 	BOOL scopeIn;
 	while (TRUE) {
 		scopeIn = Read<BOOL>(PLAYER::m_bIsScoped, pid);
-		if (scopeIn == -1) {
-			cerr << "Failed To Detect Scope\n";
-			ExitThread(-1);
-		}
+		//if (scopeIn == -1) {
+		//	cerr << "Failed To Detect Scope\n";
+		//	ExitThread(-1);
+		//}
 		bSuccess = Write(PLAYER::dwForceAttack, 5, pid);
-		if (bSuccess == FALSE) {
-			cerr << "Failed To Trigger Force Shoot\n";
-			ExitThread(-1);
-		}
+		//if (bSuccess == FALSE) {
+		//	cerr << "Failed To Trigger Force Shoot\n";
+		//	ExitThread(-1);
+		//}
 		Sleep(30);
 		bSuccess = Write(PLAYER::dwForceAttack, 4, pid);
-		if (bSuccess == FALSE) {
-			cerr << "Failed To Trigger Force Shoot\n";
-			ExitThread(-1);
-		}
+		//if (bSuccess == FALSE) {
+		//	cerr << "Failed To Trigger Force Shoot\n";
+		//	ExitThread(-1);
+		//}
 		Sleep(30);
 	}
 }

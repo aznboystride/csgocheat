@@ -16,15 +16,13 @@ namespace PLAYER {
 	DWORD dwForceLeft = LOCAL_PLAYER + 0x30FF30C;
 	DWORD dwForceRight = LOCAL_PLAYER + 0x30FF300;
 	DWORD m_iCrosshairId = LOCAL_PLAYER + 0xB394;
-	BOOL m_bIsScoped = LOCAL_PLAYER + 0x390A;
+	DWORD m_bIsScoped = LOCAL_PLAYER + 0x390A;
 }
 
 namespace ENTITY {
-	unsigned int m_iCrosshairId = 0xB394;
-	unsigned int m_iHealth = 0x100;
-	unsigned int m_iTeamNum = 0xF4;
-	unsigned int m_hActiveWeapon = 0x2EF8;
-
+	DWORD m_iCrosshairId = ENTITY_LIST + 0xB394;
+	DWORD m_iHealth = ENTITY_LIST + 0x100;
+	DWORD m_iTeamNum = ENTITY_LIST + 0xF4;
+	DWORD m_hActiveWeapon = ENTITY_LIST + 0x2EF8;
 }
-
 #endif
