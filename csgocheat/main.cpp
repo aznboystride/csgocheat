@@ -20,6 +20,7 @@ DWORD WINAPI _TriggerBunnyHop(LPVOID params) {
 	while (TRUE) {
 		Sleep(40);
 		if (GetAsyncKeyState(VK_NUMLOCK) & 0x8001) {
+			cout << "\a" << endl;
 			numlock = !numlock;
 			if (numlock)
 				cout << "BUNNY HOP ENABLED\n";
@@ -61,6 +62,7 @@ DWORD WINAPI _TriggerAutoShoot(LPVOID dwFlags) {
 	while (TRUE) {
 		Sleep(40);
 		if (GetAsyncKeyState(VK_CAPITAL) & 0x8001) {
+			cout << "\a" << endl;
 			caplock = !caplock;
 			if (caplock)
 				cout << "TRIGGER AUTO SHOOT ENABLED\n";
@@ -99,6 +101,7 @@ DWORD GetPlayerAddress() {
 }
 
 int main() {
+	
 	pid = GetProcessID("csgo.exe");
 	clientdll = GetProcessModule("client_panorama.dll", pid);
 	teamNumber = GetTeamNumber();
