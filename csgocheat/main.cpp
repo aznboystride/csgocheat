@@ -71,9 +71,9 @@ DWORD WINAPI _TriggerAutoShoot(LPVOID dwFlags) {
 			scopeIn = Read<BOOL>(playerAddress + PLAYER::m_bIsScoped, pid);
 			crosshair = Read(playerAddress + PLAYER::m_iCrosshairId, pid);
 			if (crosshair > 0 && scopeIn && !IsCrossHairFriendly(crosshair)) {
-				bSuccess = Write(playerAddress + PLAYER::dwForceAttack, 5, pid);
+				bSuccess = Write(clientdll + PLAYER::dwForceAttack, 5, pid);
 				Sleep(30);
-				bSuccess = Write(playerAddress + PLAYER::dwForceAttack, 4, pid);
+				bSuccess = Write(clientdll + PLAYER::dwForceAttack, 4, pid);
 				Sleep(30);
 			}
 		}
